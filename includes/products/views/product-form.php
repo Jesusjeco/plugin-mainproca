@@ -99,6 +99,9 @@ $page_title = $is_edit ? __('Edit Product', 'jeco-mainproca') : __('Add New Prod
             case 'name_required':
                 echo '<div class="notice notice-error"><p><strong>' . __('Error:', 'jeco-mainproca') . '</strong> ' . __('Product name is required. Please enter a product name.', 'jeco-mainproca') . '</p></div>';
                 break;
+            case 'duplicate_name':
+                echo '<div class="notice notice-error"><p><strong>' . __('Error:', 'jeco-mainproca') . '</strong> ' . __('A product with this name already exists. Please choose a different name.', 'jeco-mainproca') . '</p></div>';
+                break;
             case 'save_error':
                 echo '<div class="notice notice-error"><p><strong>' . __('Error:', 'jeco-mainproca') . '</strong> ' . __('Failed to save product. Please check that the database table exists and try again.', 'jeco-mainproca') . '</p></div>';
                 break;

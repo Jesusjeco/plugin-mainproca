@@ -84,14 +84,39 @@ class JECO_MainProca_Product_Admin {
     }
 
     /**
-     * Render products list
-     *
-     * @since 1.0.0
+     * Render products list page
      */
-    private function render_products_list() {
-        $products = JECO_MainProca_Product::get_all();
-        $total_count = JECO_MainProca_Product::get_count();
-        
+    public function render_products_list() {
+        // Handle pagination
+        $current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+        $per_page = 15;
+        $offset = ($current_page - 1) * $per_page;
+
+        // Handle search parameter
+        $search_args = array(
+            'limit' => $per_page,
+            'offset' => $offset,
+            'orderby' => 'created_at',
+            'order' => 'DESC',
+            'search' => isset($_GET['s']) ? sanitize_text_field($_GET['s']) : ''
+        );
+
+        // Get products and total count with search
+        $products = JECO_MainProca_Product::get_all($search_args);
+        $total_count = JECO_MainProca_Product::get_count($search_args);
+
+        // Calculate pagination
+        $total_pages = ceil($total_count / $per_page);
+
+        // Prepare pagination data
+        $pagination = array(
+            'current_page' => $current_page,
+            'total_pages' => $total_pages,
+            'total_items' => $total_count,
+            'per_page' => $per_page
+        );
+
+        // Include the view
         include JECO_MAINPROCA_PLUGIN_PATH . 'includes/products/views/products-list.php';
     }
 
@@ -169,9 +194,19 @@ class JECO_MainProca_Product_Admin {
         // Save product
         $result = $product->save();
 
-        if ($result) {
+        if ($result && $result !== 'duplicate') {
             $redirect_url = add_query_arg(
                 array('page' => 'jeco-mainproca-products', 'message' => 'saved'),
+                admin_url('admin.php')
+            );
+        } elseif ($result === 'duplicate') {
+            $redirect_url = add_query_arg(
+                array(
+                    'page' => 'jeco-mainproca-products', 
+                    'action' => $product_id ? 'edit' : 'add',
+                    'id' => $product_id ? $product_id : null,
+                    'message' => 'duplicate_name'
+                ),
                 admin_url('admin.php')
             );
         } else {
